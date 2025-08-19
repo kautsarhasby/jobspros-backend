@@ -7,13 +7,15 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
 
 type UserRequest struct {
+	Id *int `json:"id" db:"id"`
 	Uuid      string  `json:"uuid" db:"uuid"`
     Name     string `json:"name" db:"name"`
     Email    string `json:"email" db:"email"`
@@ -21,27 +23,6 @@ type UserRequest struct {
     Role     string `json:"role" db:"role"`
 }
 
-
-
-func UsersHandler(w http.ResponseWriter, r *http.Request){
-	path := strings.TrimPrefix(r.URL.Path,"/users")
-	path = strings.Trim(path,"/")
-	switch r.Method{
-	case http.MethodGet:
-		if path == ""{
-			GetUsers(w,r)
-		} else {
-			GetUsersById(w,r,path)
-		}
-	case http.MethodPost:
-		PostUser(w,r)
-	case http.MethodDelete:
-		DeleteUser(w,r,path)
-
-	default:
-		http.Error(w,"Method not allowed",http.StatusMethodNotAllowed)
-	}
-}
 
 // Get all users : /users
 func GetUsers(w http.ResponseWriter, r *http.Request){
@@ -68,14 +49,14 @@ func GetUsers(w http.ResponseWriter, r *http.Request){
 }
 
 // Get user by id : /users/2
-func GetUsersById(w http.ResponseWriter, r *http.Request, id string){
+func GetUserById(w http.ResponseWriter, r *http.Request){
+	id := chi.URLParam(r,"id")
 	db,err := lib.Connection()
 	if err != nil{
 		fmt.Println(err)
 		return
 	}
 	defer db.Close()
-	fmt.Println("id : ",id)
 	var user models.User
 	err = db.Get(&user,"SELECT * FROM users WHERE id = ?",id)
 	if err != nil{
@@ -116,7 +97,8 @@ func PostUser(w http.ResponseWriter, r *http.Request){
 }
 
 // Update user : /users/3
-func UpdateUser(w http.ResponseWriter, r *http.Request,id string){
+func UpdateUser(w http.ResponseWriter, r *http.Request){
+	id := chi.URLParam(r,"id")
 	db, err := lib.Connection()
 	if err != nil{
 		fmt.Println(err)
@@ -129,8 +111,14 @@ func UpdateUser(w http.ResponseWriter, r *http.Request,id string){
 	var user UserRequest
 	json.Unmarshal(byteValue,&user)
 
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, "Invalid id", http.StatusBadRequest)
+		return
+	}
+	user.Id = &idInt
 
-	_,err = db.NamedExec(`UPDATE users SET name = :name email,password,role) VALUES (:name,:email,:password,:role)`,user)
+	_,err = db.NamedExec(`UPDATE users SET name = :name, email = :email, password = :password, role = :role WHERE id = :id`,user)
 	if err != nil{
 		fmt.Println("Update error:", err)
 		http.Error(w,"Something went error",http.StatusBadRequest)

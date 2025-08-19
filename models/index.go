@@ -59,3 +59,12 @@ type Resume struct {
 	DeletedAt *time.Time `json:"deleted_at" db:"deleted_at"`
 }
 
+type HR struct {
+	Id              int    `json:"id" db:"id"`
+	HRUuid         string `json:"hr_uuid" db:"hr_uuid"`
+	HRName          string `json:"hr_name" db:"hr_name"`
+	HREmail         string `json:"hr_email" db:"hr_email"`
+	CompanyName     string `json:"company_name" db:"company_name"`
+	CompanyIndustry string `json:"company_industry" db:"company_industry"`
+	CompanyUUID     string `json:"comp_uuid" db:"comp_uuid"`
+}

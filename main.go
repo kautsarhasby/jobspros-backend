@@ -13,16 +13,28 @@ func main(){
 	r := chi.NewRouter()
 
 	http.HandleFunc("/auth",router.AuthHandler)
-	http.HandleFunc("/users/",router.UsersHandler)
+	
+
+	r.Route("/users",func (r chi.Router)  {
+		r.Get("/", router.GetUsers)                      
+		r.Get("/{id}", router.GetUserById) 
+	})
 
 	r.Route("/jobs", func(r chi.Router) {
 		r.Get("/", router.GetJobs)                      
 		r.Get("/{id}", router.GetJobById)   
+		r.Post("/",router.PostJob)
+		r.Put("/{id}", router.UpdateJob)
 	})
 	r.Route("/companies", func(r chi.Router) {
 		r.Get("/", router.GetCompanies)            
-		r.Post("/", router.PostCompany)            
 		r.Get("/{id}", router.GetCompanyById)   
+		r.Post("/", router.PostCompany)            
+	})
+	r.Route("/hr", func(r chi.Router) {
+		r.Get("/", router.GetHR)            
+		r.Get("/{id}", router.GetHRById)   
+		r.Post("/", router.PostHR)            
 	})
 
 	PORT := 4770
