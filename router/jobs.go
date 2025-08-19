@@ -27,25 +27,23 @@ type JobRequest struct {
 }
 
 
-func GetJobs(w http.ResponseWriter, r * http.Request){
-	var jobs []models.Job
-	db, err := lib.Connection()
-	if err != nil{
-		fmt.Println(err)
-		return
-	}
-	defer db.Close()
+func GetJobs(w http.ResponseWriter, r *http.Request) {
+    var jobs []models.Job
+    db, err := lib.Connection()
+    if err != nil {
+        http.Error(w, "Database connection failed", http.StatusInternalServerError)
+        return
+    }
+    defer db.Close()
 
-	
-	err = db.Select(&jobs,"SELECT * FROM jobs where deleted_at IS NULl",)
-	if err != nil{
-		fmt.Println(err)
-		return
-	}
+    err = db.Select(&jobs, "SELECT * FROM jobs WHERE deleted_at IS NULL")
+    if err != nil {
+        http.Error(w, "Query failed: "+err.Error(), http.StatusInternalServerError)
+        return
+    }
 
-
-	w.Header().Set("Content-Type","application/json")
-	json.NewEncoder(w).Encode(jobs)
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(jobs)
 }
 
 func GetJobById(w http.ResponseWriter, r * http.Request){
