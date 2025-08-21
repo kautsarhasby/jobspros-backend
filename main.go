@@ -4,16 +4,32 @@ import (
 	"backend-fullstack/router"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 
 func main(){
 	r := chi.NewRouter()
 
-	http.HandleFunc("/auth",router.AuthHandler)
-	
+	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
+    if frontendOrigin == "" {
+        frontendOrigin = "http://localhost:5173"
+    }
+
+
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{frontendOrigin}, 
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowCredentials: true,
+	}))
+
+	r.Route("/auth", func(r chi.Router){
+		r.Post("/", router.AuthHandler)
+	})
 
 	r.Route("/users",func (r chi.Router)  {
 		r.Get("/", router.GetUsers)                      
