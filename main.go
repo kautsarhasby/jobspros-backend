@@ -15,13 +15,13 @@ import (
 func main(){
 	r := chi.NewRouter()
 	
+	r.Use(lib.Middleware)
 
 	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
     if frontendOrigin == "" {
         frontendOrigin = "http://localhost:5173"
     }
 
-	r.Use(lib.Middleware)
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{frontendOrigin}, 
