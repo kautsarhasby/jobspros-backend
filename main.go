@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend-fullstack/lib"
 	"backend-fullstack/router"
 	"fmt"
 	"net/http"
@@ -13,12 +14,14 @@ import (
 
 func main(){
 	r := chi.NewRouter()
+	
 
 	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
     if frontendOrigin == "" {
         frontendOrigin = "http://localhost:5173"
     }
 
+	r.Use(lib.Middleware)
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{frontendOrigin}, 
