@@ -15,7 +15,7 @@ import (
 func main(){
 	r := chi.NewRouter()
 	
-	r.Use(lib.Middleware)
+
 
 	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
     if frontendOrigin == "" {
@@ -31,6 +31,8 @@ func main(){
 		AllowCredentials: true,
     	MaxAge:           300,
 	}))
+
+	r.Use(lib.Middleware)
 
 	r.Route("/auth", func(r chi.Router){
 		r.Post("/", router.AuthHandler)
