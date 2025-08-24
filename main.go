@@ -27,7 +27,9 @@ func main(){
 		AllowedOrigins:   []string{frontendOrigin}, 
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token","X-API-KEY"},
+		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
+    	MaxAge:           300,
 	}))
 
 	r.Route("/auth", func(r chi.Router){
